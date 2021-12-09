@@ -1,0 +1,61 @@
+@font-face {
+    font-family  :  'Bungee-Regular';
+    src          :  url('Bungee-Regular.ttf');
+}
+ 
+
+
+@font-face {
+    font-family  :  'PixelFont';
+    src          :  url('PressStart2P-Regular.ttf');
+}
+
+
+
+body{
+    background-color: royalblue;
+}
+
+
+
+form{
+    text-align:  center;
+}
+
+
+
+#title{
+    text-align   :  center;
+    font-family  :  'Bungee-Regular';
+    font-size    :  500%;
+    color        :  yellow;
+}
+
+
+
+#subtitle{
+    text-align      :  center;
+    font-family     :  'PixelFont';
+    color           :  white;
+    padding-bottom  :  5%;
+}
+
+
+
+.btn{
+    width             :  24%;
+    height            :  50%;
+
+    cursor            :  pointer;
+    border-radius     :  5%;
+
+    background-image  :  url('./arrow.png');
+    background-color  : lightsalmon;
+    color             : royalblue;
+    opacity           :  0.75;
+    
+    font-weight       :  bold;
+    font-size         :  300%;
+    font-family       :  'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
