@@ -1,16 +1,17 @@
 <html>
     <head>
-        <link rel="stylesheet" href='..\static\style.css' />
+        <link rel="stylesheet" href='..\static\style.css'/>
+        <!--<script type="application/javascript" src="..\static\script.js"></script>-->
     </head>
     <body>
         <h1 id="title" title="Andrea Tomatis & Nicolo' Cora">Alphabot</h1>
         <h3 id="subtitle">web version 0.0.1</h3>
         
         <form method="post" action="/">
-            <input type="submit" value="LEFT"  name="left"  class="btn"/></input>
-            <input type="submit" value="UP"    name="up"    class="btn"/></input>
-            <input type="submit" value="DOWN"  name="down"  class="btn"/></input>
-            <input type="submit" value="RIGHT" name="right" class="btn"/></input>
+            <input id=0 type="submit" value="LEFT"  name="left"  class="btn" onclick="changeStuatus(this)"/></input>
+            <input id=1 type="submit" value="UP"    name="up"    class="btn" onclick="changeStuatus(this)"/></input>
+            <input id=2 type="submit" value="DOWN"  name="down"  class="btn" onclick="changeStuatus(this)"/></input>
+            <input id=3 type="submit" value="RIGHT" name="right" class="btn" onclick="changeStuatus(this)"/></input>
         </form>
     </body>
 </html>
