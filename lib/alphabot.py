@@ -29,8 +29,8 @@ class AlphaBot(object):
         self.stop()
 
     def left(self):
-        self.PWMA.ChangeDutyCycle(50)
-        self.PWMB.ChangeDutyCycle(50)
+        self.PWMA.ChangeDutyCycle(20)
+        self.PWMB.ChangeDutyCycle(20)
         GPIO.output(self.IN1, GPIO.HIGH)
         GPIO.output(self.IN2, GPIO.LOW)
         GPIO.output(self.IN3, GPIO.HIGH)
@@ -47,15 +47,15 @@ class AlphaBot(object):
         return 'stop'
 
     def right(self):
-        self.PWMA.ChangeDutyCycle(50)
-        self.PWMB.ChangeDutyCycle(50)
+        self.PWMA.ChangeDutyCycle(20)
+        self.PWMB.ChangeDutyCycle(20)
         GPIO.output(self.IN1, GPIO.LOW)
         GPIO.output(self.IN2, GPIO.HIGH)
         GPIO.output(self.IN3, GPIO.LOW)
         GPIO.output(self.IN4, GPIO.HIGH)
         return 'turn right'
 
-    def backward(self, speed=30):
+    def forward(self, speed=30):
         self.PWMA.ChangeDutyCycle(speed)
         self.PWMB.ChangeDutyCycle(speed)
         GPIO.output(self.IN1, GPIO.LOW)
@@ -64,7 +64,7 @@ class AlphaBot(object):
         GPIO.output(self.IN4, GPIO.LOW)
         return 'backward'
 
-    def forward(self, speed=30):
+    def backward(self, speed=30):
         self.PWMA.ChangeDutyCycle(speed)
         self.PWMB.ChangeDutyCycle(speed)
         GPIO.output(self.IN1, GPIO.HIGH)

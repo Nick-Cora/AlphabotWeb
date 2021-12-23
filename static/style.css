@@ -41,6 +41,25 @@ form{
 }
 
 
+#btn_seq{
+    background-color  : orange;
+    color             : white;
+
+    width             :  12%;
+    height            :  12%;
+    border-radius     :  10%;
+
+    font-size	      :  200%
+
+    background-image  :  url('./arrow.png');
+}
+
+
+#text_seq{
+    height            :  10%;
+    font-size         :  200%
+}
+
 
 .btn{
     width             :  24%;
@@ -55,7 +74,7 @@ form{
     opacity           :  0.75;
     
     font-weight       :  bold;
-    font-size         :  300%;
+    font-size         :  200%;
     font-family       :  'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
