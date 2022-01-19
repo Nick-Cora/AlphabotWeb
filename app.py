@@ -1,52 +1,62 @@
-import time
-from flask import Flask, render_template, request
+from flask import Flask, render_template, redirect, url_for, request
+from controller import *
 from lib.config import *
-from lib.query import Db_Connection
-
-if not DUMMY:
-    from lib.alphabot import AlphaBot
-else:
-    from lib.alphabot_dummy import AlphaBot
+import sqlite3
+import string
+import random
+from lib.mail import email_alert
 
 
-robot = AlphaBot()
 app = Flask(__name__)
-status = {  'right'        : 0,
-            'left'         : 0,
-            'up'           : 0,
-            'down'         : 0}
+token = ''.join(random.choice(string.ascii_lowercase) for _ in range(STRING_LENGHT))
+registration_token = ''.join(random.choice(string.ascii_lowercase) for _ in range(STRING_LENGHT))
+waiting_user_list = {}
 
 
-def executeSequence(cmd):
 
-    commands = {'right'        :  robot.right,
-                 'left'         :  robot.left,
-                 'forward'      :  robot.forward,
-                 'backward'     :  robot.backward,
-                 'stop'         :  robot.stop}
-
-    #creo db
-    db = Db_Connection('./lib/movimenti.db')
-
-    #invio richiesta
-    try:
-        seq = db.findCommand(cmd)
-
-        for m in seq:
-            m = m.split('_')
-            print(commands[m[0]]())
-            time.sleep(int(m[1]))
-            robot.stop()
-    except Exception as e:
-        print(e)
-
+def validate(username, password):
+    completion = False
+    db = Db_Connection('./lib/users_db.db')
+    rows = db.findRecords('USERS', '*')
     db.close()
-    return
+
+    for row in rows:
+        dbUser = row[0]
+        dbPass = row[1]
+        if dbUser==username:
+            completion=check_password(dbPass, password)
+    return completion
 
 
-@app.route("/", methods=['GET', 'POST'])
-def index():
 
+def check_password(hashed_password, user_password):
+    return hashed_password == user_password
+
+def check_registration(username, password, email):
+    return len(username) > 0 and len(password) > 0 and len(email) > 0 and '@' in email
+
+
+
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        if request.form.get('signUp') == 'Sign Up':
+            return redirect(url_for('registration_page'))
+        username = request.form['username']
+        password = request.form['password']
+        completion = validate(username, password)
+        if completion == False:
+            error = 'Invalid Credentials. Please try again.'
+        else:
+            logged = True
+            return redirect(url_for('main_page'))
+    return render_template('login.html', error=error)
+
+
+
+@app.route(f'/{token}', methods=['GET','POST'])
+def main_page():
     movements = {'right'        :  robot.right,
                  'left'         :  robot.left,
                  'up'           :  robot.forward,
@@ -69,6 +79,40 @@ def index():
     return render_template("index.html")
 
 
+@app.route(f'/registration_page', methods=['GET','POST'])
+def registration_page():
+    if request.method == 'POST':
+        password = request.form['passwrd']
+        username = request.form['name']
+        email = request.form['mail']
+        msg = None
+        if check_registration(username, password, email):
+            waiting_user_list[registration_token] = (username,password,email)
+            email_alert('Alphabot account verification',
+                        f'Hello {username}.\nClick the link below to activate your account:\nhttp://127.0.0.1:5000/{registration_token}/',
+                        email)
+            msg = 'Data correctly submitted! Check your email to confirm the subscrition.'
+        else:
+            msg = 'Error. You can\'t leave white fields.'
 
-if __name__ == '__main__':
-    app.run(debug=True, host='192.168.0.117')
+    elif request.method == 'GET':
+        return render_template('registration.html')
+    
+    return render_template("registration.html", msg=msg)
+
+
+
+@app.route(f'/{registration_token}/', methods=['GET','POST'])
+def confermation():
+    if request.method == 'POST':
+        return redirect(url_for("login"))
+    if request.method == 'GET':
+        username,password,email = waiting_user_list[registration_token]
+        db = Db_Connection('./lib/users_db.db')
+        db.add('USERS',username, password, email)
+        db.close()
+        return render_template("confirmation.html")
+
+
+if __name__ == "__main__":
+    app.run(debug=True, host=SERVER_IP)

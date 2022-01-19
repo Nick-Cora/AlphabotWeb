@@ -30,16 +30,32 @@ class Db_Connection():
         return conn
         
 
-    def findCommand(self, cn):
+    def findRecords(self, table, attribute, **kwargs):
         '''
         Restituisce la sequenza corrispondente ad 
         un dato comando
+        
         '''
-        self.cur.execute(f'SELECT sequenza FROM Movimenti WHERE nome = "{cn}"')
+        sql = f'SELECT {attribute} FROM {table}'
+        if 'condition' in kwargs:
+            sql += f' WHERE {kwargs.get("condition")}'
+        print(sql)
+        self.cur.execute(sql)
         seq = self.cur.fetchall()
         print(seq)
 
-        return seq[0][0].split(';')
+        return seq
+    
+    def add(self, table, *args):
+        try:
+            val = ','.join(f'"{i}"' for i in args)
+            sql = f'INSERT INTO {table} VALUES ({val})'
+            print(sql)
+            self.cur.execute(sql)
+            self.conn.commit()
+        except Exception:
+            return False
+        return True
     
 
     def close(self):
