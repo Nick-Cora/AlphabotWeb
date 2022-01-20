@@ -4,6 +4,7 @@ from lib.config import *
 import sqlite3
 import string
 import random
+import datetime
 from lib.mail import email_alert
 
 
@@ -11,18 +12,20 @@ app = Flask(__name__)
 token = ''.join(random.choice(string.ascii_lowercase) for _ in range(STRING_LENGHT))
 registration_token = ''.join(random.choice(string.ascii_lowercase) for _ in range(STRING_LENGHT))
 waiting_user_list = {}
+username = ''
+
 
 
 
 def validate(username, password):
     completion = False
-    db = Db_Connection('./lib/users_db.db')
+    db = Db_Connection('./lib/database.db')
     rows = db.findRecords('USERS', '*')
     db.close()
 
     for row in rows:
-        dbUser = row[0]
-        dbPass = row[1]
+        dbUser = row[1]
+        dbPass = row[2]
         if dbUser==username:
             completion=check_password(dbPass, password)
     return completion
@@ -43,6 +46,8 @@ def login():
     if request.method == 'POST':
         if request.form.get('signUp') == 'Sign Up':
             return redirect(url_for('registration_page'))
+        
+        global username
         username = request.form['username']
         password = request.form['password']
         completion = validate(username, password)
@@ -50,6 +55,13 @@ def login():
             error = 'Invalid Credentials. Please try again.'
         else:
             logged = True
+            db = Db_Connection('./lib/database.db')
+            id_user = db.findRecords('USERS', 'id_user', condition=f'username = "{username}"')
+            db.add('access_list', 
+                    id_user[0][0], 
+                    datetime.datetime.now() ,
+                    columns='"username", "date"')
+            db.close()
             return redirect(url_for('main_page'))
     return render_template('login.html', error=error)
 
@@ -67,10 +79,19 @@ def main_page():
     if request.method == 'POST':
         for key, value in movements.items():
             if request.form.get(key) == key.upper():
+                db = Db_Connection('./lib/database.db')
+                id_user = db.findRecords('USERS','id_user',condition=f'username = "{username}"')
                 if status[key]:
                     robot.stop()
+                    id_sequenza = STOP
                 else:
                     print(value())
+                    id_sequenza = db.findRecords('movimenti','id',condition=f'nome = "{key}"')
+                
+                db.add('movements_history',
+                        id_user[0][0],
+                        id_sequenza[0][0],
+                        columns='"id_user","id_sequenza"')
                 status[key] = not status[key]
         
     elif request.method == 'GET':
@@ -108,7 +129,7 @@ def confermation():
         return redirect(url_for("login"))
     if request.method == 'GET':
         username,password,email = waiting_user_list[registration_token]
-        db = Db_Connection('./lib/users_db.db')
+        db = Db_Connection('./lib/database.db')
         db.add('USERS',username, password, email)
         db.close()
         return render_template("confirmation.html")

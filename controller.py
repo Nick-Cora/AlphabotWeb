@@ -29,7 +29,7 @@ def executeSequence(cmd):
                  'stop'         :  robot.stop}
 
     #apro db
-    db = Db_Connection('./lib/movimenti.db')
+    db = Db_Connection('./lib/database.db')
 
     #invio richiesta
     try:

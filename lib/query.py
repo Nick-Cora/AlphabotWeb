@@ -46,14 +46,19 @@ class Db_Connection():
 
         return seq
     
-    def add(self, table, *args):
+    def add(self, table, *args, **kwargs):
         try:
             val = ','.join(f'"{i}"' for i in args)
-            sql = f'INSERT INTO {table} VALUES ({val})'
-            print(sql)
+            if 'columns' in kwargs:
+                name_col = kwargs.get('columns')
+                sql = f'INSERT INTO {table} ({name_col}) VALUES ({val})'
+            else:
+                sql = f'INSERT INTO {table} VALUES ({val})'
+
             self.cur.execute(sql)
             self.conn.commit()
-        except Exception:
+        except Exception as e:
+            print(e)
             return False
         return True
     
