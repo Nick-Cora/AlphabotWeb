@@ -1,4 +1,4 @@
-DUMMY = False
+DUMMY = True
 SERVER_IP = '127.0.0.1'
 STRING_LENGHT = 30
-STOP = 10
+STOP = [(10,)]

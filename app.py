@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, make_response, redirect, url_for, request
 from controller import *
 from lib.config import *
 import sqlite3
@@ -62,7 +62,9 @@ def login():
                     datetime.datetime.now() ,
                     columns='"username", "date"')
             db.close()
-            return redirect(url_for('main_page'))
+            resp = make_response(redirect(url_for('main_page')))
+            resp.set_cookie('username',username)
+            return resp
     return render_template('login.html', error=error)
 
 
@@ -78,6 +80,8 @@ def main_page():
 
     if request.method == 'POST':
         for key, value in movements.items():
+            username = request.cookies.get('username')
+            print(username)
             if request.form.get(key) == key.upper():
                 db = Db_Connection('./lib/database.db')
                 id_user = db.findRecords('USERS','id_user',condition=f'username = "{username}"')
@@ -130,7 +134,7 @@ def confermation():
     if request.method == 'GET':
         username,password,email = waiting_user_list[registration_token]
         db = Db_Connection('./lib/database.db')
-        db.add('USERS',username, password, email)
+        db.add('USERS',username, password, email, columns='"USERNAME","PASSWORD","EMAIL"')
         db.close()
         return render_template("confirmation.html")
 
